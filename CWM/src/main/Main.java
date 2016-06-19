@@ -11,7 +11,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		Main.prepare();
-		IOManager.print("Class Wide Messenger v"+0.2);
+		IOManager.print("Class Wide Messenger v"+Version);
 		TerminalDialog.run();
 	}
 
@@ -23,10 +23,11 @@ public class Main {
 		FileManager.install();
 		PropertyManager.setup(FileManager.getPropertyFile());
 		PropertyManager.load(FileManager.getPropertyFile());
-		if(Boolean.parseBoolean(PropertyManager.getProperty("GUI"))){GUIManager.start();}
+		if(PropertyManager.getProperty("GUI").equals("true")){GUIManager.start();}
 	}
 	
 	public static void prepare(){
+		PropertyManager.init();
 		if(FileManager.isInstalled()){
 			Main.installAndLoad();
 		}

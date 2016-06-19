@@ -25,7 +25,7 @@ public class GUIManager extends JFrame{
 	 */
 	public GUIManager() {
 		getContentPane().setEnabled(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 	}
 

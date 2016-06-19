@@ -9,7 +9,13 @@ import java.util.Scanner;
 public class PropertyManager{
 	
   private static Properties pt=new Properties();
-  private static File PropertyFile;
+ 
+  public static void init(){
+	  pt.setProperty("GUI","false");
+	  pt.setProperty("LOG", "true");
+	  pt.setProperty("LAF","Nimbus");
+	  pt.setProperty("ANSI", "false");
+  }
   
   public static Properties getProperties(){
 	return pt;  
@@ -29,7 +35,6 @@ public class PropertyManager{
   
   public static void load(File file){
 	  FileReader fr;
-	  PropertyFile=file;
 	try {
 		fr = new FileReader(file);
 		pt.load(fr);
@@ -46,11 +51,6 @@ public class PropertyManager{
      if(!sc.hasNextLine()){
     	sc.close();
 	  PrintWriter  pr = new PrintWriter(file);
-	  
-	  pt.setProperty("GUI","false");
-	  pt.setProperty("LOG", "true");
-	  pt.setProperty("LAF","Nimbus");
-	  
 	  pt.store(pr,"");
 	  pr.close();
      }else{sc.close();}
@@ -58,9 +58,4 @@ public class PropertyManager{
      //TODO
      }
    }
-  
-  public static File getPropertyFile(){
-	return PropertyFile;
-	  
-  }  
 }

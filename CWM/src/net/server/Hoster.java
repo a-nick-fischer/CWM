@@ -1,9 +1,8 @@
-package net;
+package net.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,7 +12,7 @@ public class Hoster {
 	private String Name;
 	private int ID;
 	private ServerSocket Server;
-	private boolean isRunning;
+	private boolean running;
 	private LinkedList<Client> Clients=new LinkedList<>();
 	private ExecutorService ExecServ;
    
@@ -21,19 +20,20 @@ public class Hoster {
 		this.Name=Name;
 		this.ID=ID;
 		Server=new ServerSocket(Port);
-		ExecServ= Executors.newCachedThreadPool();
+		ExecServ = Executors.newWorkStealingPool();
 		ExecServ.submit(() -> lookup());
 	}
 	
 	private void lookup(){
-		while(isRunning){
+		running=true;
+		while(running){
 			try {
 				Client Client=new Client(Server.accept(),ID);
 				Clients.add(Client);
 			    ExecServ.submit(Client);
 				
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				//TODO
 			}			
 		}
 	}
@@ -47,16 +47,16 @@ public class Hoster {
 	}
 	
 	public void broadcast(String msg) throws IOException{
-		for(Socket Client: (Socket[]) Clients.toArray()){
-			new PrintWriter(Client.getOutputStream()).println(msg);
+		for(Client Client: Clients){
+			new PrintStream(Client.getSocket().getOutputStream()).println(msg);
 		}
 	}
 
     public void shutdown() throws IOException{
-    	isRunning=false;
+    	running=false;
     	ExecServ.shutdown();
     	
-    	for(Client Client: (Client[]) Clients.toArray()){
+    	for(Client Client: Clients){
     		Client.getSocket().close();
     	}
     	Server.close();

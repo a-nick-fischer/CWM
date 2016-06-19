@@ -1,10 +1,7 @@
 package manager;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
-
 import main.Main;
 
 public class FileManager{
@@ -31,11 +28,6 @@ public class FileManager{
  public static void deleteAll(){
 	 PropertyFile.delete();
 	 LogFile.delete();
-	 try {
-		Files.move(SelfFile.toPath(),new File(Folder.getParent()+SelfFile.getName()).toPath());
-	} catch (IOException e) {
-		//TODO
-	}
  }
  
  public static File getLogFile(){

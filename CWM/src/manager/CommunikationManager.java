@@ -3,7 +3,8 @@ package manager;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.Hoster;
+import net.client.Connection;
+import net.server.Hoster;
 
 public class CommunikationManager{
 	
@@ -14,8 +15,10 @@ public class CommunikationManager{
     Servers.add(Server);
    }
    
-   public static void connect() throws Exception{
-	   
+   public static void connect(String IP, int Port){
+	   Connection Con=new Connection(IP,Port);
+	   new Thread(() -> Con.handleIn()).start();
+	   Con.handleOut();
    }
    
    public static List<Hoster> getServerList(){
@@ -23,11 +26,11 @@ public class CommunikationManager{
    }
    
    public static Hoster getServerByID(int ID){
-	   return Servers.get(ID);
+	   return Servers.get(ID-1);
    }
    
    public static Hoster getServerByName(String name){
-	   for(Hoster Server: (Hoster[]) Servers.toArray()){
+	   for(Hoster Server: Servers){
 		   if(Server.getName().equals(name)){return Server;}
 	   }
    return null;

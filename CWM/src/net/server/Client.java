@@ -1,4 +1,4 @@
-package net;
+package net.server;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -20,22 +20,22 @@ public class Client implements Runnable{
 	
 	@Override
 	public void run() {
+		running=true;
 		try {
 			CommunikationManager.getServerByID(ServerID).broadcast(client.getInetAddress()+" joined the room!");
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.print("IP: "+client.getInetAddress()+"\nServerID: "+ServerID+"\nServerName: "+CommunikationManager.getServerByID(ServerID).getName());
+		} catch (Exception e1) {
+		   e1.printStackTrace();
 		}
 		while(running){
-			if(sc.hasNextLine()){
 			     StringBuilder line= new StringBuilder(sc.nextLine());
 			     line.insert(0, "["+client.getInetAddress()+"] ");
 			    try {
 					CommunikationManager.getServerByID(ServerID).broadcast(line.toString());
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					//TODO
 				}}
 			}
-		}
 
 	public Socket getSocket() {
 		return client;

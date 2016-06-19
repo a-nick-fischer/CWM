@@ -1,14 +1,14 @@
 package main;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import manager.CommunikationManager;
 import manager.FileManager;
 import manager.GUIManager;
 import manager.IOManager;
 import manager.PropertyManager;
-import net.Hoster;
+import net.server.Hoster;
 
 public class TerminalDialog{
 	
@@ -46,9 +46,9 @@ public class TerminalDialog{
 			    break;
 			   
 			    case "pm-store":
-			    if(line.split(" ").length==1){
+			    if(words.length==1){
 				try {
-					PropertyManager.getProperties().store(new PrintStream(PropertyManager.getPropertyFile()),"");
+					PropertyManager.getProperties().store(new PrintStream(FileManager.getPropertyFile()),"");
 				} catch (Exception e) {
 					//TODO
 				}
@@ -62,9 +62,18 @@ public class TerminalDialog{
 				}
 			    break;
 			    
-			    case "pm-print":
+			    case "pm-load":
+			    if(words.length==1){
+			    	PropertyManager.load(FileManager.getPropertyFile());
+			    }else{
+			    	PropertyManager.load(new File(words[1]));
+			    }
+			    break;
+			    
+			    case "pm-get":
 				try {
 					PropertyManager.getProperties().store(IOManager.getOutputStream(),"");
+					PropertyManager.getProperties().store(new PrintStream(new FileOutputStream(FileManager.getLogFile())), "");
 				} catch (Exception e) {
 					//TODO
 				}
@@ -73,11 +82,11 @@ public class TerminalDialog{
 			    case "fm-install":
 			    	if(!FileManager.isInstalled()){
 			    		 Main.installAndLoad();
-			    	}else{ IOManager.errprint("[CWM] Files are already installed!");;}
+			    	}else{ IOManager.print(Colors.YELLOW+"\nFiles are already installed!\n");}
 			    break;
 			    
-			    case "fm-is_installed":
-			    	IOManager.print("[CWM] "+FileManager.isInstalled());
+			    case "fm-installed":
+			    	IOManager.print(FileManager.isInstalled()? Colors.GREEN+"\n"+FileManager.isInstalled()+"\n" : Colors.RED+"\n"+FileManager.isInstalled()+"\n");
 			    break;
 			    
 			    case "gm-start":
@@ -102,30 +111,31 @@ public class TerminalDialog{
 			    
 			    case "cm-broadcast":
 			    	if(words.length==1){
-			    		IOManager.errprint("[CWM] Please speciffy a server-name");
+			    		IOManager.print(Colors.YELLOW+"\nPlease speciffy a server-name\n");
 			    		continue;
 			    	}
 			    	
 			    	if(words.length==2){
-			    		IOManager.errprint("[CWM] Please speciffy a text to send");
+			    		IOManager.print(Colors.YELLOW+"\nPlease speciffy a text to send\n");
 			    		continue;
 			    	}
 			    	
 			    		StringBuilder b=new StringBuilder();
-			    		for(int i=2;i<line.split(" ").length;i++){
+			    		for(int i=3;i<line.split(" ").length;i++){
 			    	      b.append(line.split(" ")[1]);
 			    		}
 			    		
 			    		try {
-							CommunikationManager.getServerByName(words[2]).broadcast(b.toString());
-						} catch (IOException e) {
+			    			 System.out.println(b.toString());
+							CommunikationManager.getServerByName(words[1]).broadcast(b.toString());
+						} catch (Exception e) {
 							//TODO
 						}
 			    break;
 			    
 			    case "cm-host":
 			        if(words.length<3){
-			        	IOManager.errprint("[CWM] Invalid argument number");
+			        	IOManager.print(Colors.YELLOW+"\nInvalid argument number\n");
 			        }else{
 			            try{
 			            	String name = words[1];
@@ -135,6 +145,25 @@ public class TerminalDialog{
 			            	//TODO
 			            }
 			        }
+			    break;
+			    
+			    case "cm-connect":
+			    	if(words.length<2){
+			    		IOManager.print(Colors.YELLOW+"\nInvalid argument number\n");
+			    	}
+			    	else{
+			    	  try{
+			    		String IP=words[1].split(":")[0];
+			    		int Port=Integer.parseInt(words[1].split(":")[1]);
+			    		CommunikationManager.connect(IP,Port);
+			    	  }catch(Exception e){
+			    		  //TODO
+			    	  }
+			    	}
+			    break;
+			    
+			    case "cm-info":
+			    	
 			    break;
 			   }
 			  

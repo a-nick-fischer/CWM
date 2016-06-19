@@ -1,9 +1,14 @@
 package manager;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
+
+import main.Colors;
 
 public class IOManager{
 	private static OutputStream DefOut   = System.out;
@@ -42,51 +47,71 @@ public class IOManager{
 	public static InputStream getInputStream(){
 		return DefIn;
 	}
-
+	
+	public static String filterAnsi(String str){
+		str=str.replaceAll("\\u001B\\[0m", "");
+		str=str.replaceAll("\\u001B\\[4m", "");
+		str=str.replaceAll("\\u001B\\[30m", "");
+		str=str.replaceAll("\\u001B\\[31m", "");
+		str=str.replaceAll("\\u001B\\[32m", "");
+		str=str.replaceAll("\\u001B\\[33m", "");
+		str=str.replaceAll("\\u001B\\[34m", "");
+		str=str.replaceAll("\\u001B\\[35m", "");
+		str=str.replaceAll("\\u001B\\[36m", "");
+		str=str.replaceAll("\\u001B\\[37m", "");
+		str=str.replaceAll("\\u001B\\[40m", "");
+		str=str.replaceAll("\\u001B\\[41m", "");
+		str=str.replaceAll("\\u001B\\[42m", "");
+		str=str.replaceAll("\\u001B\\[43m", "");
+		str=str.replaceAll("\\u001B\\[44m", "");
+		str=str.replaceAll("\\u001B\\[45m", "");
+		str=str.replaceAll("\\u001B\\[46m", "");
+		str=str.replaceAll("\\u001B\\[47m", "");
+		return str;
+	}
+	
     public static void print(String str){
-      if(PropertyManager.getProperties().containsKey("LOG")){
-        if(PropertyManager.getProperty("LOG").equals("true")){
-        	try {
-    			FileLogger = new PrintStream(FileManager.getLogFile());
-    			FileLogger.println("[SYS/"+Thread.currentThread()+"] "+str);
-    		} catch (Exception e) {
-    			//TODO
-    		}
-        }}
+    if(PropertyManager.getProperty("ANSI").equals("false")){
+    	str = filterAnsi(str);
+    }else{
+    	str = str+Colors.RESET;
+    }
     	MPrinter.print(str);
+    	MPrinter.flush();
+    	
+    	if(str!="\n>"){
+    	str = filterAnsi(str);
+        log("SYS/"+Thread.currentThread().getName(),str);
+        }
     }
 
     public static void errprint(String str){
-    	if(PropertyManager.getProperties().containsKey("LOG")){
-        if(PropertyManager.getProperty("LOG").equals("true")){
-        	try {
-    			FileLogger = new PrintStream(FileManager.getLogFile());
-    			FileLogger.println("[SYSERR/"+Thread.currentThread()+"] "+str);
-    		} catch (Exception e) {
-    			//TODO
-    		}
-        }}
+    	log("ERRSYS/"+Thread.currentThread().getName(),str);
+    	if(PropertyManager.getProperty("ANSI").equals("true")){
+    	MEPrinter.print(Colors.RED+str+Colors.RESET);
+    	}else{
+        str = filterAnsi(str);
     	MEPrinter.print(str);
-    }
-    
-    public static boolean hasNextLine(){
-    	return MScanner.hasNextLine();
+    	}
+    	MEPrinter.flush();
     }
     
     public static String nextLine(){
-    	
     	String str=MScanner.nextLine();
-    	
-    	if(PropertyManager.getProperties().containsKey("LOG")){
-        if(PropertyManager.getProperty("LOG").equals("true")){
-        	try {
-    			FileLogger = new PrintStream(FileManager.getLogFile());
-    			FileLogger.println("[SYS/"+Thread.currentThread()+"] "+str);
-    		} catch (Exception e) {
-    			//TODO
-    		}
-        }}
-        
+    	log("USER",str);
     	return str;
+    }
+
+    public static void log(String name,String str){
+    	 if(PropertyManager.getProperties().containsKey("LOG")){
+    	        if(PropertyManager.getProperty("LOG").equals("true")){
+    	        	try {
+    	        		String Date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+    	    			FileLogger = new PrintStream(new FileOutputStream(FileManager.getLogFile(),true));
+    	    			FileLogger.println("["+Date+"]"+"("+name+") "+str);
+    	    		} catch (Exception e) {
+    	    			//TODO
+    	    		}
+    	        }}
     }
 }
