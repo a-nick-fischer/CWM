@@ -1,31 +1,33 @@
 package net.client;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Scanner;
 
+import main.Main;
 import manager.IOManager;
 
-public class Connection{
+public class SIOConnection{
 	
   private Socket Server;
   private PrintStream toServer;
-  private Scanner fromServer;
+  private BufferedReader fromServer;
   
   private boolean running=false;
 	
- public Connection(String IP, int Port){
+ public SIOConnection(String IP, int Port){
 	 try {
 		 
 		Server     = new Socket(IP,Port);
-		toServer   = new PrintStream(Server.getOutputStream());
-		fromServer = new Scanner(Server.getInputStream());
+		toServer   = new PrintStream(Server.getOutputStream(),true);
+		fromServer = new BufferedReader(new InputStreamReader(Server.getInputStream()));
 		
 		running=true;
 		
-	} catch (Exception e) {
-		//TODO
-	}
+	 } catch (Throwable e) {
+			Main.handleError(e,Thread.currentThread(),"ERROR:");
+	 }
  }
 
  public void handleOut(){
@@ -38,7 +40,16 @@ public class Connection{
  }
  
  public void handleIn(){
-	 IOManager.print(fromServer.nextLine());
+   while(running){
+	 try {
+	  String rev;
+	  if((rev = fromServer.readLine()) != null){
+		IOManager.print(rev);
+	  }
+	 } catch (Throwable e) {
+			Main.handleError(e,Thread.currentThread(),"ERROR:");
+	 }
+   }
  }
  
  
