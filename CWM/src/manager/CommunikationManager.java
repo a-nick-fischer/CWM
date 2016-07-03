@@ -3,12 +3,13 @@ package manager;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.client.Connection;
+import net.client.NIOConnection;
+import net.client.SIOConnection;
 import net.server.Hoster;
 
 public class CommunikationManager{
 	
-   private static LinkedList<Hoster> Servers=new LinkedList<>();
+   private static List<Hoster> Servers=new LinkedList<>();
 	
    public static void host(int Port, String Name) throws Exception{
     Hoster Server=new Hoster(Port,Name,Servers.size()+1);
@@ -16,9 +17,16 @@ public class CommunikationManager{
    }
    
    public static void connect(String IP, int Port){
-	   Connection Con=new Connection(IP,Port);
-	   new Thread(() -> Con.handleIn()).start();
-	   Con.handleOut();
+	   if(PropertyManager.getProperty("CONNECTION TYPE").equals("SIO")){
+	   SIOConnection Con=new SIOConnection(IP,Port);
+       ThreadManager.getMainExecutor().execute(Con::handleOut);
+       Con.handleIn();
+	   }
+	   
+	   if(PropertyManager.getProperty("CONNECTION TYPE").equals("NIO")){
+	   NIOConnection Con=new NIOConnection(IP,Port);
+	   Con.run();
+	   }
    }
    
    public static List<Hoster> getServerList(){

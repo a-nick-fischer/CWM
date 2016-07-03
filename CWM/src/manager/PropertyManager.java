@@ -6,15 +6,19 @@ import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.Scanner;
 
+import main.Main;
+
 public class PropertyManager{
 	
   private static Properties pt=new Properties();
  
-  public static void init(){
+  public static void loadDefaults(){
 	  pt.setProperty("GUI","false");
 	  pt.setProperty("LOG", "true");
 	  pt.setProperty("LAF","Nimbus");
 	  pt.setProperty("ANSI", "false");
+	  pt.setProperty("CONNECTION_TYPE", "SIO");
+	  pt.setProperty("MAIN_EXECUTOR_TYPE", "-2");
   }
   
   public static Properties getProperties(){
@@ -39,8 +43,8 @@ public class PropertyManager{
 		fr = new FileReader(file);
 		pt.load(fr);
 		fr.close();
-	} catch (Exception e) {
-    //TODO
+	} catch (Throwable e) {
+		Main.handleError(e,Thread.currentThread(),"ERROR:");
 	}
 	  
   }
@@ -51,11 +55,11 @@ public class PropertyManager{
      if(!sc.hasNextLine()){
     	sc.close();
 	  PrintWriter  pr = new PrintWriter(file);
-	  pt.store(pr,"");
+	  pt.store(pr," ");
 	  pr.close();
      }else{sc.close();}
-    }catch (Exception e) {
-     //TODO
-     }
+   } catch (Throwable e) {
+		Main.handleError(e,Thread.currentThread(),"ERROR:");
+	}
    }
 }

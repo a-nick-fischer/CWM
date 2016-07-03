@@ -1,11 +1,14 @@
 package net.server;
 
-import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import main.Main;
+import manager.ThreadManager;
 
 public class Hoster {
 	
@@ -15,25 +18,37 @@ public class Hoster {
 	private boolean running;
 	private LinkedList<Client> Clients=new LinkedList<>();
 	private ExecutorService ExecServ;
-   
+	
+    private LinkedList<InetAddress> Banned=new LinkedList<>();
+    private String BannedMSG = "You are banned on this Server!";
+	
 	public Hoster(int Port, String Name, int ID) throws Exception{
 		this.Name=Name;
 		this.ID=ID;
 		Server=new ServerSocket(Port);
-		ExecServ = Executors.newWorkStealingPool();
+		ExecServ = ThreadManager.requestExecuter(Name, -1);
 		ExecServ.submit(() -> lookup());
 	}
 	
 	private void lookup(){
 		running=true;
+		loop:
 		while(running){
 			try {
 				Client Client=new Client(Server.accept(),ID);
 				Clients.add(Client);
+				 
+				  for(int i=0;i<Banned.size();i++){
+					  if(Client.getSocket().getInetAddress().equals(Banned.get(i))){
+						  new PrintStream(Client.getSocket().getOutputStream()).println(BannedMSG);
+						  continue loop;
+					  }
+				  }
+				
 			    ExecServ.submit(Client);
 				
-			} catch (Exception e) {
-				//TODO
+			} catch (Throwable e) {
+				Main.handleError(e,Thread.currentThread(),"ERROR:");
 			}			
 		}
 	}
@@ -46,20 +61,54 @@ public class Hoster {
 		return Name;
 	}
 	
-	public void broadcast(String msg) throws IOException{
+	public List<Client> getClients(){
+		return Clients;
+	}
+	
+	public ServerSocket getServerSocket(){
+		return Server;
+	}
+	
+	public void broadcast(String msg){
+	 ExecServ.submit(() -> {
 		for(Client Client: Clients){
-			new PrintStream(Client.getSocket().getOutputStream()).println(msg);
+			try {
+				new PrintStream(Client.getSocket().getOutputStream()).print("\n"+msg+"\n");
+			} catch (Throwable e) {
+				Main.handleError(e,Thread.currentThread(),"ERROR:");
+			}
 		}
+	 });
 	}
 
-    public void shutdown() throws IOException{
+    public void shutdown(){
     	running=false;
-    	ExecServ.shutdown();
+    	ThreadManager.shutdownExecuter(Name);
     	
     	for(Client Client: Clients){
-    		Client.getSocket().close();
+    		Client.setRunning(false);
     	}
-    	Server.close();
+      
+    	try {
+			Server.close();
+    	} catch (Throwable e) {
+			Main.handleError(e,Thread.currentThread(),"ERROR:");
+		}
     }
     
+    public void ban(InetAddress addr){
+    	Banned.add(addr);
+    }
+    
+    public void disban(InetAddress addr){
+    	Banned.remove(addr);
+    }
+
+    public boolean isBanned(InetAddress addr){
+		return Banned.contains(addr);
+    }
+
+    public void setBannedMessage(String msg){
+    	BannedMSG=msg;
+    }
 }

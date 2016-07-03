@@ -20,14 +20,16 @@ public class FileManager{
 			if(!PropertyFile.exists()){PropertyFile.createNewFile();}
 			if(!LogFile.exists()){LogFile.createNewFile();}
 			
-		} catch (Exception e){
-        //TODO
+	    } catch (Throwable e) {
+			Main.handleError(e,Thread.currentThread(),"ERROR:");
 		}
  }
  
  public static void deleteAll(){
 	 PropertyFile.delete();
 	 LogFile.delete();
+	 PluginFolder.delete();
+	 Folder.delete();
  }
  
  public static File getLogFile(){

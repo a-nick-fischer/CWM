@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Scanner;
 
 import main.Colors;
+import main.Main;
 
 public class IOManager{
 	private static OutputStream DefOut   = System.out;
@@ -101,17 +102,15 @@ public class IOManager{
     	log("USER",str);
     	return str;
     }
-
+    
     public static void log(String name,String str){
-    	 if(PropertyManager.getProperties().containsKey("LOG")){
-    	        if(PropertyManager.getProperty("LOG").equals("true")){
+    	        if(PropertyManager.getProperty("LOG").equals("true") && FileManager.isInstalled()){
     	        	try {
     	        		String Date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
     	    			FileLogger = new PrintStream(new FileOutputStream(FileManager.getLogFile(),true));
     	    			FileLogger.println("["+Date+"]"+"("+name+") "+str);
-    	    		} catch (Exception e) {
-    	    			//TODO
-    	    		}
-    	        }}
-    }
-}
+    	        	} catch (Throwable e) {
+    					Main.handleError(e,Thread.currentThread(),"ERROR:");
+    				}
+    }}
+ }

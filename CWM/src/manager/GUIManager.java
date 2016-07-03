@@ -3,6 +3,8 @@ package manager;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 
+import main.Main;
+
 public class GUIManager extends JFrame{
 
 	private static final long serialVersionUID = 1L;
@@ -13,8 +15,8 @@ public class GUIManager extends JFrame{
 				try {
 					GUIManager frame = new GUIManager();
 					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (Throwable e) {
+					Main.handleError(e,Thread.currentThread(),"ERROR:");
 				}
 			}
 		});
