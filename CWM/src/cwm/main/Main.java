@@ -1,22 +1,32 @@
-package main;
+package cwm.main;
 
+import java.io.File;
 import java.util.Locale;
-import manager.FileManager;
-import manager.GUIManager;
-import manager.IOManager;
-import manager.PropertyManager;
-import manager.ThreadManager;
+
+import cwm.cmd.CommandRegistry;
+import cwm.manager.FileManager;
+import cwm.manager.GUIManager;
+import cwm.manager.IOManager;
+import cwm.manager.PropertyManager;
+import cwm.manager.ThreadManager;
 
 public class Main {
 	
 	private static final double Version = 0.2;
-
-	public static void main(String[] args) {
+	
+    public static void main(String[] args) {
 		Main.prepare();
 		IOManager.print("Class Wide Messenger v"+Version);
-		TerminalDialog.run();
+		Main.run();
 	}
-
+    
+    public static void run(){
+       while(true){
+    	   IOManager.print("\n>");
+    	   CommandRegistry.resolve(IOManager.nextLine());
+       }
+    }
+    
 	public static double getVersion(){
 		return Version;
 	}
@@ -31,6 +41,7 @@ public class Main {
 	public static void prepare(){
      try{
 		PropertyManager.loadDefaults();
+		CommandRegistry.registerDefaults();
 		ThreadManager.initMainExecutor(
 				Integer.parseInt(PropertyManager.getProperty("MAIN_EXECUTOR_TYPE"))
 		);
@@ -53,19 +64,23 @@ public class Main {
 	}
 
     public static void handleError(Throwable e,Thread t,String msg){
-    	IOManager.errprint(msg+" in Thread "+t.getName()+"\nOf type "+e+"\n\n");
-    	boolean logToFile;
+    	IOManager.errprint(msg+" in Thread \""+t.getName()+"\"\n Of type "+e+"\n");
+    	boolean logToFile=false;
     	String line;
-    	while(true){
-    		IOManager.errprint("Log error to file? (y/n)\n");
-    		if((line = IOManager.nextLine()).toLowerCase(Locale.ROOT).equals("y")){logToFile=true;break;}
-    		if(line.toLowerCase(Locale.ROOT).equals("n")){logToFile=false;break;}
+    	boolean hasAnswer=false;
+    	while(!hasAnswer){
+    		IOManager.errprint("Log error to file? (y/n)\n>");
+    		if((line = IOManager.nextLine()).toLowerCase(Locale.ROOT).equals("y")){logToFile=true;hasAnswer=true;break;}
+    		if(line.toLowerCase(Locale.ROOT).equals("n")){hasAnswer=true;logToFile=false;break;}
     	}
     	
     	if(logToFile){
     		boolean changed = PropertyManager.getProperty("LOG").equals("false");
     		
     		PropertyManager.setProperty("LOG","true");
+    		try{
+    		if(FileManager.isInstalled()==false){File f = new File("CWMErr.log");f.createNewFile();FileManager.setLogFile(f);}
+    		}catch(Exception ex){}
     		IOManager.log("ERRSYS/"+Thread.currentThread().getName(),"=============================================================================================");
     		IOManager.log("ERRSYS/"+Thread.currentThread().getName(),"THREAD: "+t.getName()+" EXCEPTION: "+e);
     		IOManager.log("", "");
@@ -88,6 +103,6 @@ public class Main {
     		 
     		if(changed){PropertyManager.setProperty("LOG","false");}
     	}
-		TerminalDialog.run();
+		Main.run();
     }
 }
