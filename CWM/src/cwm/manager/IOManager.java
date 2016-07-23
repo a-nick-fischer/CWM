@@ -1,4 +1,4 @@
-package manager;
+package cwm.manager;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -8,8 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-import main.Colors;
-import main.Main;
+import cwm.cmd.Colors;
+import cwm.main.Main;
 
 public class IOManager{
 	private static OutputStream DefOut   = System.out;
@@ -87,13 +87,15 @@ public class IOManager{
     }
 
     public static void errprint(String str){
-    	log("ERRSYS/"+Thread.currentThread().getName(),str);
+    	log("ERRSYS/"+Thread.currentThread().getName(),filterAnsi(str));
+    	
     	if(PropertyManager.getProperty("ANSI").equals("true")){
-    	MEPrinter.print(Colors.RED+str+Colors.RESET);
+    	str = Colors.RED+str+Colors.RESET;
+    	 System.out.println(1);
     	}else{
         str = filterAnsi(str);
-    	MEPrinter.print(str);
     	}
+    	MEPrinter.print(str);
     	MEPrinter.flush();
     }
     

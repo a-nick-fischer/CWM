@@ -1,4 +1,4 @@
-package manager;
+package cwm.manager;
 
 import java.io.File;
 import java.io.FileReader;
@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.Scanner;
 
-import main.Main;
+import cwm.main.Main;
 
 public class PropertyManager{
 	
@@ -15,9 +15,7 @@ public class PropertyManager{
   public static void loadDefaults(){
 	  pt.setProperty("GUI","false");
 	  pt.setProperty("LOG", "true");
-	  pt.setProperty("LAF","Nimbus");
 	  pt.setProperty("ANSI", "false");
-	  pt.setProperty("CONNECTION_TYPE", "SIO");
 	  pt.setProperty("MAIN_EXECUTOR_TYPE", "-2");
   }
   

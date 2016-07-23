@@ -1,8 +1,9 @@
-package manager;
+package cwm.manager;
 
 import java.io.File;
 import java.net.URLDecoder;
-import main.Main;
+
+import cwm.main.Main;
 
 public class FileManager{
 	
@@ -53,6 +54,10 @@ public class FileManager{
 		 return true;
 	 }
 	 else return false;
+ }
+ 
+ public static void setLogFile(File f){
+	 FileManager.LogFile=f;
  }
  
 }

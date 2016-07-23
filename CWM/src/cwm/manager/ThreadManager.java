@@ -1,4 +1,4 @@
-package manager;
+package cwm.manager;
 
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -44,21 +44,21 @@ public class ThreadManager {
  }
  
  public static ExecutorService requestExecuter(String Name,int threadCount){
-	 ExecutorService executer = null; //Beware of null-pointers
+	 ExecutorService executor = null;
 	 if(threadCount==1){
-		 mainExecutor = Executors.newSingleThreadExecutor();
+		 executor = Executors.newSingleThreadExecutor();
 	 }
 	 else if(threadCount==-1){
-		 mainExecutor = Executors.newCachedThreadPool();
+		 executor = Executors.newCachedThreadPool();
 	 }
 	 else if(threadCount==-2){
-		 mainExecutor = Executors.newWorkStealingPool();
+		 executor = Executors.newWorkStealingPool();
 	 }
 	 else{
-		 mainExecutor = Executors.newFixedThreadPool(threadCount);
+		 executor = Executors.newFixedThreadPool(threadCount);
 	 }
-	 executorMap.put(Name, executer);
-	 return executer;
+	 executorMap.put(Name, executor);
+	 return executor;
 	 
  }
 

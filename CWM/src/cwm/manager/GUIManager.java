@@ -1,9 +1,9 @@
-package manager;
+package cwm.manager;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 
-import main.Main;
+import cwm.main.Main;
 
 public class GUIManager extends JFrame{
 

@@ -1,12 +1,12 @@
-package net.server;
+package cwm.net.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import main.Main;
-import manager.CommunikationManager;
+import cwm.main.Main;
+import cwm.manager.CommunikationManager;
 
 public class Client implements Runnable{
 
@@ -23,43 +23,39 @@ public class Client implements Runnable{
 	
 	@Override
 	public void run() {
-		running=true;
+		setRunning(true);
 		try {
 			CommunikationManager.getServerByID(ServerID).broadcast(client.getInetAddress().getHostAddress()+" joined the room!");
 		} catch (Throwable e) {
 			Main.handleError(e,Thread.currentThread(),"ERROR:");
+			disconnect();
 		}
-		while(running){
+		while(isRunning()){
 			    try{
-			     StringBuilder line= new StringBuilder(sc.readLine());
-			     line.insert(0, "["+client.getInetAddress()+"] ");
-					CommunikationManager.getServerByID(ServerID).broadcast(line.toString());
+			     String line;
+			     if((line=sc.readLine())!=null){
+				   CommunikationManager.getServerByID(ServerID).broadcast("["+client.getInetAddress().getHostAddress()+"] "+line);}
 			    } catch (Throwable e) {
+			    	disconnect();
 					Main.handleError(e,Thread.currentThread(),"ERROR:");
 				}
 	    }
-		try {
-			sc.close();
-			client.close();
-		} catch (Throwable e) {
-			Main.handleError(e,Thread.currentThread(),"ERROR:");
-		}
+		disconnect();
 	}
 
-	public Socket getSocket() {
+	public synchronized Socket getSocket() {
 		return client;
 	}
 
-	public void setSocket(Socket client) {
+	public synchronized void setSocket(Socket client) {
 		this.client = client;
 	}
 	
-
-	public boolean isRunning(){
+	public synchronized boolean isRunning(){
 		return running;
 	}
 	
-	public void setRunning(boolean running){
+	public synchronized void setRunning(boolean running){
 		this.running=running;
 	}
 	
@@ -67,4 +63,13 @@ public class Client implements Runnable{
 		return ServerID;
 	}
 
+	public synchronized void disconnect(){
+		running = false;
+		try{
+		 if(sc!=null){sc.close();}
+		 if(client!=null){client.close();}
+		}catch(Exception e){
+			Main.handleError(e, Thread.currentThread(), "ERROR:");
+		}
+	}
 }
