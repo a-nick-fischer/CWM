@@ -1,8 +1,12 @@
-package cwm.cmd;
+package cwm.manager;
 
 import java.util.HashMap;
 
-public class CommandRegistry {
+import cwm.cmd.CmdMethods;
+import cwm.cmd.Command;
+import cwm.cmd.Reaction;
+
+public class CommandManager {
 	
 	private static HashMap<String,Command> Commands = new HashMap<>(); 
 	
@@ -42,8 +46,7 @@ public class CommandRegistry {
 	  final Reaction SYS_ANSI_TEST = (args) -> {CmdMethods.SYS_ANSI_TEST(args);};
 	  final Reaction SYS_RUNTIME_ERROR_TEST = (args) -> {CmdMethods.SYS_RUNTIME_ERROR_TEST(args);};
 	  final Reaction SYS_CHECKED_ERROR_TEST = (args) -> {CmdMethods.SYS_CHECKED_ERROR_TEST(args);};
-	  final Reaction SYS_GETUPDATE = (args) -> {CmdMethods.SYS_GETUPDATE(args);};
-	  final Reaction SYS_INSTALL_UPDATE = (args) -> {CmdMethods.SYS_INSTALL_UPDATE(args);};
+	  final Reaction SYS_UPDATE = (args) -> {CmdMethods.SYS_UPDATE(args);};
 	  final Reaction PM_SET = (args) -> {CmdMethods.PM_SET(args);};
 	  final Reaction PM_GET = (args) -> {CmdMethods.PM_GET(args);};
 	  final Reaction PM_STORE = (args) -> {CmdMethods.PM_STORE(args);};
@@ -60,15 +63,13 @@ public class CommandRegistry {
 	  final Reaction CM_DISBAN = (args) -> {CmdMethods.CM_DISBAN(args);};
 	  final Reaction CM_INFO = (args) -> {CmdMethods.CM_INFO(args);};
 	  
-	  
 	  register("exit #INT",EXIT);
 	  register("sys-exit #INT",SYS_EXIT);
 	  register("sys_call STR #STR",SYS_CALL);
 	  register("sys-ansi-test",SYS_ANSI_TEST);
 	  register("sys-runtime-error-test #STR",SYS_RUNTIME_ERROR_TEST);
 	  register("sys-checked-error-test #STR",SYS_CHECKED_ERROR_TEST);
-	  register("sys-getupdate STR",SYS_GETUPDATE);
-	  register("sys-install-update STR",SYS_INSTALL_UPDATE);
+	  register("sys-getupdate STR",SYS_UPDATE);
 	  register("pm-set STR STR",PM_SET);
 	  register("pm-get",PM_GET);
 	  register("pm-store #STR",PM_STORE);
