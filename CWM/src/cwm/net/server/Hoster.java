@@ -1,8 +1,8 @@
 package cwm.net.server;
 
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -30,7 +30,7 @@ public class Hoster {
 		  this.Name=Name;
 		  this.ID=ID;
 		  Server=new ServerSocket(Port);
-		  ExecServ = ThreadManager.requestExecuter(Name, -1);
+		  ExecServ = ThreadManager.requestExecuter(Name, 3);
 		  ExecServ.submit(() -> lookup());
 		}catch(java.net.BindException e){
 			IOManager.print(Colors.YELLOW+"\nPort "+Port+" is already in use, choose an other\n");
@@ -53,11 +53,11 @@ public class Hoster {
 		setRunning(true);
 		while(isRunning()){
 			try {
-				Client Client=new Client(Server.accept(),ID);
+				Socket Conn = Server.accept();
+				Client Client=new Client(Conn,ID,Conn.getInetAddress().getHostAddress());
 				Clients.add(Client);
-				if(isBanned(Client.getSocket().getInetAddress())){new PrintStream(Client.getSocket().getOutputStream()).println(BannedMSG);continue;}
+				if(isBanned(Client.getSocket().getInetAddress())){Client.getWriter().println(BannedMSG); Client.disconnect();continue;}
 			    ExecServ.submit(Client);
-				
 			} catch (Throwable e) {
 				Main.handleError(e,Thread.currentThread(),"ERROR:");
 			}			
@@ -80,23 +80,30 @@ public class Hoster {
 		return Server;
 	}
 	
-	public void broadcast(String msg){
-	 String msgToSend = msg.replaceAll("\\[SERVER\\]", "");
-	 
-	 
-	 ExecServ.submit(() -> {
+	public void broadcast(Client Sender,String msg){
 		for(Client Client: Clients){
 			try {
-				PrintStream ps = new PrintStream(Client.getSocket().getOutputStream());
-				ps.print(msgToSend);
-				ps.close();
+				  if(msg.isEmpty() || msg.contains("[SERVER]")){break;}
+				  if(Sender==Client){continue;}
+                  Client.getWriter().printf("[%s] %s\r\n",Sender.getName(),msg);
+                  Client.getWriter().flush();
 			} catch (Throwable e) {
 				Main.handleError(e,Thread.currentThread(),"ERROR:");
 			}
 		}
-	 });
 	}
-
+	
+	public void broadcast(String msg){
+		for(Client Client: Clients){
+			try {
+                  Client.getWriter().printf("[SERVER] %s\r\n",msg);
+                  Client.getWriter().flush();
+			} catch (Throwable e) {
+				Main.handleError(e,Thread.currentThread(),"ERROR:");
+			}
+	    }
+    }
+	
     public void shutdown(){
     	setRunning(false);
     	for(Client Client: Clients){

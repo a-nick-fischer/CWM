@@ -1,9 +1,8 @@
 package cwm.net.client;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 import cwm.cmd.Colors;
 import cwm.main.Main;
@@ -13,7 +12,7 @@ public class Connection{
 	
   private Socket Server;
   private PrintStream toServer;
-  private BufferedReader fromServer;
+  private Scanner fromServer;
   
   private boolean running=false;
 	
@@ -23,49 +22,57 @@ public class Connection{
 		 
 		Server     = new Socket(IP,Port);
 		toServer   = new PrintStream(Server.getOutputStream(),true);
-		fromServer = new BufferedReader(new InputStreamReader(Server.getInputStream()));
+		fromServer = new Scanner(Server.getInputStream());
+		running = true;
 		
-		running=true;
 	 }catch(java.net.ConnectException e){
 		 IOManager.print(Colors.YELLOW+"\nCould not connect to server! \n");
 		 Main.run();
 	 }
-	 } catch (Throwable e) {
-			Main.handleError(e,Thread.currentThread(),"ERROR:");
-	 }
+    }catch (Throwable e) {
+		Main.handleError(e,Thread.currentThread(),"ERROR:");
+	}
  }
 
  public void handleOut(){
-	 while(running){
+	 while(isRunning()){
 		   IOManager.print(">>>");
 			 String line=IOManager.nextLine();
-			 if(line.equals("#break")){toServer.println("-----DISCONNECTED-----");IOManager.print("-----DISCONNECTED-----");running=false;}
-			 toServer.print(line);
+			 if(line.equals("/exit")){disconnect();continue;}
+			 toServer.print(line+"\r\n");
+			 toServer.flush();
 	 }
  }
  
  public void handleIn(){
-   while(running){
-	 try {
-	  String rev;
-	  if((rev = fromServer.readLine()) != null){
-		IOManager.print("\n"+rev+"\n");
-	  }
-	 } catch (Throwable e) {
-			Main.handleError(e,Thread.currentThread(),"ERROR:");
-	 }
+  try {
+   while(isRunning()){
+		IOManager.print(fromServer.nextLine()+"\n>>>");
    }
+  }catch (Throwable e) {
+	Main.handleError(e,Thread.currentThread(),"ERROR:");
+  }
  }
  
  
  
- public boolean isRunning(){
+ public synchronized boolean isRunning(){
 	 return running;
  }
  
- public void setRunning(boolean running){
+ public synchronized void setRunning(boolean running){
 	 this.running=running;
  }
  
- 
+ public void disconnect(){
+	 setRunning(false);
+	 try{
+	  toServer.print("/exit\r\n");
+	  if(fromServer!=null){fromServer.close();}
+	  if(toServer!=null){toServer.close();}
+	  if(Server!=null && Server.isClosed()==false){Server.close();}
+	 }catch(Throwable e){
+		 Main.handleError(e, Thread.currentThread(), "ERROR:");
+	 }
+ }
 }
