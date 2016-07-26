@@ -20,7 +20,6 @@ public class CommunikationManager{
        Con.handleIn();
     }
    
-   
    public static List<Hoster> getServerList(){
 	   return Servers;
    }

@@ -45,7 +45,7 @@ public class Command {
 	 
 	  if(gotSize<minSize){return false;}
 	  
-	  for(int i =1;i<args.size();i++){
+	  for(int i =1;i<Arguments.size();i++){
 		  String Comparer = null;
 		  if(isOptional(Arguments.get(i-1))){
 			  Comparer = Arguments.get(i-1).replace("#","");

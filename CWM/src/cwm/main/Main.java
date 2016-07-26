@@ -1,9 +1,10 @@
 package cwm.main;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Locale;
 
-import cwm.cmd.CommandRegistry;
+import cwm.manager.CommandManager;
 import cwm.manager.FileManager;
 import cwm.manager.GUIManager;
 import cwm.manager.IOManager;
@@ -23,7 +24,7 @@ public class Main {
     public static void run(){
        while(true){
     	   IOManager.print("\n>");
-    	   CommandRegistry.resolve(IOManager.nextLine());
+    	   CommandManager.resolve(IOManager.nextLine());
        }
     }
     
@@ -32,16 +33,17 @@ public class Main {
 	}
 
 	public static void installAndLoad(){
+		FileManager.init();
 		FileManager.install();
-		PropertyManager.setup(FileManager.getPropertyFile());
-		PropertyManager.load(FileManager.getPropertyFile());
+		PropertyManager.setup(FileManager.getFileByName("Prog.conf"));
+		PropertyManager.load(FileManager.getFileByName("Prog.conf"));
 		if(PropertyManager.getProperty("GUI").equals("true")){GUIManager.start();}
 	}
 	
 	public static void prepare(){
      try{
 		PropertyManager.loadDefaults();
-		CommandRegistry.registerDefaults();
+		CommandManager.registerDefaults();
 		ThreadManager.initMainExecutor(
 				Integer.parseInt(PropertyManager.getProperty("MAIN_EXECUTOR_TYPE"))
 		);
@@ -65,30 +67,43 @@ public class Main {
 
     public static void handleError(Throwable e,Thread t,String msg){
     	IOManager.errprint(msg+" in Thread \""+t.getName()+"\"\n Of type "+e+"\n");
+    	
     	boolean logToFile=false;
     	String line;
-    	boolean hasAnswer=false;
-    	while(!hasAnswer){
+    	
+    	while(true){
     		IOManager.errprint("Log error to file? (y/n)\n>");
-    		if((line = IOManager.nextLine()).toLowerCase(Locale.ROOT).equals("y")){logToFile=true;hasAnswer=true;break;}
-    		if(line.toLowerCase(Locale.ROOT).equals("n")){hasAnswer=true;logToFile=false;break;}
+    		if((line = IOManager.nextLine()).toLowerCase(Locale.ROOT).equals("y")){logToFile=true;break;}
+    		if(line.toLowerCase(Locale.ROOT).equals("n")){logToFile=false;break;}
     	}
     	
     	if(logToFile){
     		boolean changed = PropertyManager.getProperty("LOG").equals("false");
-    		
     		PropertyManager.setProperty("LOG","true");
+    		
     		try{
-    		if(FileManager.isInstalled()==false){File f = new File("CWMErr.log");f.createNewFile();FileManager.setLogFile(f);}
-    		}catch(Exception ex){}
+    			
+    		   if(FileManager.getFileByName("Cwm.log").exists()==false){
+    			   IOManager.errprint("Program files not installed, generating log file");
+    			   File f = new File("CWMErr.log");
+    			   f.createNewFile();
+    			   FileManager.setFileByName("Cwm.log", f);}
+    		
+    		}catch(Exception ex){
+    		    IOManager.errprint("\nAn special error occured in exception handler!\n"+ex+"\n");
+    		    IOManager.errprint("Please message me about this isuue, so i can fix it.\n nickkoro02@gmail.com\n\n");
+    		    ex.printStackTrace(new PrintStream(IOManager.getErrorStream()));
+    		    Main.run();
+    		}
+    		
     		IOManager.log("ERRSYS/"+Thread.currentThread().getName(),"=============================================================================================");
     		IOManager.log("ERRSYS/"+Thread.currentThread().getName(),"THREAD: "+t.getName()+" EXCEPTION: "+e);
-    		IOManager.log("", "");
+    		IOManager.log("------", "");
     		
     		 for(int i=0;i<e.getStackTrace().length;i++){
     			 IOManager.log("STACKTRACE",e.getStackTrace()[i].toString());
     		 }
-    		 IOManager.log("", "");
+    		 IOManager.log("------", "");
              IOManager.log("PROPERTIES", PropertyManager.getProperties().toString());
     	     
              IOManager.log("OS",System.getProperty("os.name")+" "+System.getProperty("os.arch"));

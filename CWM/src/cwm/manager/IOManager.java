@@ -72,18 +72,19 @@ public class IOManager{
 	}
 	
     public static void print(String str){
-    if(PropertyManager.getProperty("ANSI").equals("false")){
+      if(PropertyManager.getProperty("ANSI").equals("false")){
     	str = filterAnsi(str);
-    }else{
+      }else{
     	str = str+Colors.RESET;
-    }
-    	MPrinter.print(str);
-    	MPrinter.flush();
+      }
+      
+      MPrinter.print(str);
+      MPrinter.flush();
     	
-    	if(str!="\n>"){
-    	str = filterAnsi(str);
-        log("SYS/"+Thread.currentThread().getName(),str);
-        }
+      if(str!="\n>"){
+    	 str = filterAnsi(str);
+         log("SYS/"+Thread.currentThread().getName(),str);
+      }
     }
 
     public static void errprint(String str){
@@ -109,10 +110,13 @@ public class IOManager{
     	        if(PropertyManager.getProperty("LOG").equals("true") && FileManager.isInstalled()){
     	        	try {
     	        		String Date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-    	    			FileLogger = new PrintStream(new FileOutputStream(FileManager.getLogFile(),true));
+    	    			FileLogger = new PrintStream(new FileOutputStream(FileManager.getFileByName("Cwm.log"),true));
     	    			FileLogger.println("["+Date+"]"+"("+name+") "+str);
     	        	} catch (Throwable e) {
-    					Main.handleError(e,Thread.currentThread(),"ERROR:");
+    	        		IOManager.errprint("\nAn special error occured in file logger!\n"+e+"\n");
+    	    		    IOManager.errprint("Please message me about this issue, so i can fix it.\n nickkoro02@gmail.com\n\n");
+    	    		    e.printStackTrace(new PrintStream(IOManager.getErrorStream()));
+    	    		    Main.run();
     				}
     }}
  }

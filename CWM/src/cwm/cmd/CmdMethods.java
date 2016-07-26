@@ -3,12 +3,8 @@ package cwm.cmd;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
-import java.util.Scanner;
 
 import cwm.main.Main;
 import cwm.manager.CommunikationManager;
@@ -26,7 +22,9 @@ public class CmdMethods {
       else{System.exit(0);}
     }catch(NumberFormatException e){System.exit(0);}
   }
+  
   public static void SYS_CALL(List<String> args){
+   try{
     if(!args.get(1).contains(".") || !args.get(1).contains("(") || !args.get(1).contains(")")){IOManager.print(Colors.YELLOW+"\nInvalid syntax\n");return;}
 	
   
@@ -46,27 +44,21 @@ public class CmdMethods {
    if(ArgumentTypeString.length != Arguments.length){IOManager.print(Colors.YELLOW+"\nYou must declare the type for each argument\n");return;}
  
    for(int j=0;j<ArgumentTypeString.length;j++){
-  	 try {
 			ArgumentTypes[j] = Class.forName(ArgumentTypeString[j]);
-		} catch (Throwable e) {
-			Main.handleError(e,Thread.currentThread(),"ERROR:");
-		}
    }
 
+           
+     IOManager.print(Colors.RED+"\nRETURN VALUE: "+Class.forName(ClassName).getMethod(MethodName, ArgumentTypes).invoke(Class.forName(ClassName), Arguments));
+    
+     if(args.size()==2){
+        IOManager.print(Colors.RED+"RETURN VALUE: "+Class.forName(ClassName).getMethod(MethodName).invoke(Class.forName(ClassName)));
+     }
+    }
+   }catch(Throwable e){
+	   Main.handleError(e, Thread.currentThread(), "ERROR:");
+   }
+  }
   
-try{                
-  IOManager.print(Colors.RED+"\nRETURN VALUE: "+Class.forName(ClassName).getMethod(MethodName, ArgumentTypes).invoke(Class.forName(ClassName), Arguments));
-} catch (Throwable e) {
-	Main.handleError(e,Thread.currentThread(),"ERROR:");
-}
-}
-if(args.size()==2){
-try{
- IOManager.print(Colors.RED+"RETURN VALUE: "+Class.forName(ClassName).getMethod(MethodName).invoke(Class.forName(ClassName)));
-} catch (Throwable e) {
-	Main.handleError(e,Thread.currentThread(),"ERROR:");
-}
-}}
   public static void SYS_ANSI_TEST(List<String> args){
 	PrintStream IO = new PrintStream(IOManager.getOutputStream());
 	IO.print("===================ANSI TEST==================\n\n");
@@ -75,10 +67,13 @@ try{
 	IO.print("BACKGROUND:\n");
 	IO.print(Colors.RED_BACK+"RED "+Colors.GREEN_BACK+"GREEN "+Colors.BLUE_BACK+"BLUE "+Colors.CYAN_BACK+"CYAN "+Colors.PURPLE_BACK+"PURPLE "+Colors.YELLOW_BACK+"YELLOW "+Colors.WHITE_BACK+"WHITE "+Colors.BLACK_BACK+"BLACK "+Colors.RESET+"\n\n");
 	IO.print("==============================================\n\n");}
+  
+  
   public static void SYS_RUNTIME_ERROR_TEST(List<String> args){
 	  if(args.size()>=2){throw new RuntimeException(args.get(1));}
       else throw new RuntimeException();
   }
+  
   public static void SYS_CHECKED_ERROR_TEST(List<String> args){
 	  try{
     	  if(args.size()>=2){throw new Exception(args.get(1));}
@@ -87,45 +82,48 @@ try{
     	Main.handleError(e, Thread.currentThread(), "ERROR:");
       }
   }
-  public static void SYS_GETUPDATE(List<String> args){
-	  try{
-	    	 URL url = new URL ("ftp://user:uk1n6m3k5h0u7hkm51@81.217.188.227/update/"+args.get(1)+".zip");
-	    	 URLConnection urlc = url.openConnection();
-	    	 @SuppressWarnings("resource")
-			Scanner sc = new Scanner(urlc.getInputStream());
-	    	 File out = new File("cwm"+args.get(1)+".zip");
-	    	 out.createNewFile();
-	    	 @SuppressWarnings("resource")
-			PrintWriter pw = new PrintWriter(out);
-	    	 
-	    	 while(sc.hasNextLine()){
-	    		 pw.println(sc.nextLine());
-	    	 }
-	    	 
-	    	}catch(Exception e){
-	    		Main.handleError(e, Thread.currentThread(), "ERROR:");
-	    	}
+  
+  public static void SYS_UPDATE(List<String> args){
+	  IOManager.print(Colors.YELLOW+"\nThe updater is under deverlopment\n");
+//	  try{
+//	    	 URL url = new URL ("ftp://user:cwm@81.217.188.227/update/"+args.get(1)+".zip");
+//	    	 URLConnection urlc = url.openConnection();
+//	    	 @SuppressWarnings("resource")
+//			Scanner sc = new Scanner(urlc.getInputStream());
+//	    	 File out = new File(args.get(1)+".zip");
+//	    	 out.createNewFile();
+//	    	 @SuppressWarnings("resource")
+//			PrintWriter pw = new PrintWriter(out);
+//	    	 
+//	    	 while(sc.hasNextLine()){
+//	    		 pw.println(sc.nextLine());
+//	    	 }
+//	    	 
+//	    	}catch(Exception e){
+//	    		Main.handleError(e, Thread.currentThread(), "ERROR:");
+//	    	}
   }
-  public static void SYS_INSTALL_UPDATE(List<String> args){
-	  //TODO
-  }
+  
+  
   public static void PM_SET(List<String> args){
 	 PropertyManager.setProperty(args.get(1), args.get(2));
   }
+  
   public static void PM_GET(List<String> args){
 	  try {
 			PropertyManager.getProperties().store(IOManager.getOutputStream(),"");
 			if(PropertyManager.getProperty("LOG").equals("true") && FileManager.isInstalled()){
-			PropertyManager.getProperties().store(new PrintStream(new FileOutputStream(FileManager.getLogFile())), "");
+			PropertyManager.getProperties().store(new PrintStream(new FileOutputStream(FileManager.getFileByName("Cwm.log"))), "");
 			}
 		} catch (Throwable e) {
 			Main.handleError(e,Thread.currentThread(),"ERROR:");
 		}
   }
+ 
   public static void PM_STORE(List<String> args){
 	  if(args.size()==1){
 		try {
-		  PropertyManager.getProperties().store(new PrintStream(FileManager.getPropertyFile()),"");
+		  PropertyManager.getProperties().store(new PrintStream(FileManager.getFileByName("Prog.conf")),"");
 		} catch (Throwable e) {
 			Main.handleError(e,Thread.currentThread(),"ERROR:");
 		}
@@ -137,28 +135,34 @@ try{
 			}
 		}
   }
+  
   public static void PM_LOAD(List<String> args){
 	  if(args.size()==1){
-	    	PropertyManager.load(FileManager.getPropertyFile());
+	    	PropertyManager.load(FileManager.getFileByName("Prog.conf"));
 	    }else{
 	    	PropertyManager.load(new File(args.get(1)));
 	    }
   }
+  
   public static void FM_INSTALL(List<String> args){
 	if(!FileManager.isInstalled()){
  		Main.installAndLoad();
  	}else{ 
  		IOManager.print(Colors.YELLOW+"\nFiles are already installed!\n");}
     }
+ 
   public static void FM_INSTALLED(List<String> args){
 	  IOManager.print(FileManager.isInstalled()? Colors.GREEN+"\n"+FileManager.isInstalled()+"\n" : Colors.RED+"\n"+FileManager.isInstalled()+"\n");
   }
+
   public static void FM_DELETE_ALL(List<String> args){
-	  //TODO
+	  FileManager.deleteAll();
   }
+  
   public static void GM_START(List<String> args){
 	  GUIManager.start();
   }
+  
   public static void CM_HOST(List<String> args){
    try{
      String name = args.get(1);
@@ -170,6 +174,7 @@ try{
 	   Main.handleError(e,Thread.currentThread(),"ERROR:");
    }
   }
+ 
   public static void CM_CONNECT(List<String> args){
 	if(args.size()<2){
   	  IOManager.print(Colors.YELLOW+"\nInvalid argument number\n");
@@ -184,6 +189,7 @@ try{
   	  }
   	}
   }
+ 
   public static void CM_SHUTDOWN(List<String> args){
 	  try {
 			if(args.size()==1){
@@ -199,20 +205,11 @@ try{
 			Main.handleError(e,Thread.currentThread(),"ERROR:");
 		}
   }
+
   public static void CM_BROADCAST(List<String> args){
-	  if(args.size()==1){
-  		IOManager.print(Colors.YELLOW+"\nPlease speciffy a server-name\n");
-  		return;
-  	}
-  	
-  	if(args.size()==2){
-  		IOManager.print(Colors.YELLOW+"\nPlease speciffy a text to send\n");
-  		return;
-  	}
-  	
-  		StringBuilder b=new StringBuilder("[SERVER] ");
+  		StringBuilder b=new StringBuilder("");
   		for(int i=2;i<args.size();i++){
-  	      b.append(args.get(i));
+  	      b.append(" "+args.get(i));
   		}
   		
   		try {
@@ -221,6 +218,7 @@ try{
 				Main.handleError(e,Thread.currentThread(),"ERROR:");
 			}
   }
+ 
   public static void CM_BAN(List<String> args){
 	  try {
 			CommunikationManager.getServerByName(args.get(1)).ban(InetAddress.getByName(args.get(2)));
@@ -228,6 +226,7 @@ try{
 			Main.handleError(e, Thread.currentThread(), "ERROR:");
 		}
   }
+ 
   public static void CM_DISBAN(List<String> args){
 	  try {
 			CommunikationManager.getServerByName(args.get(1)).disban(InetAddress.getByName(args.get(2)));
@@ -235,6 +234,7 @@ try{
 			Main.handleError(e, Thread.currentThread(), "ERROR:");
 		}
   }
+
   public static void CM_INFO(List<String> args){
 	IOManager.print(Colors.BLUE+"\n     Name     ID     Clients     Port\n");
   	
