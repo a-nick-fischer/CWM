@@ -42,6 +42,8 @@ public class CommandManager {
 	  
 	  final Reaction EXIT = (args) -> {CmdMethods.SYS_EXIT(args);};
 	  final Reaction SYS_EXIT = (args) -> {CmdMethods.SYS_EXIT(args);};
+	  final Reaction HELP = (args) ->{CmdMethods.SYS_HELP(args);};
+	  final Reaction SYS_HELP = (args) ->{CmdMethods.SYS_HELP(args);};
 	  final Reaction SYS_CALL = (args) -> {CmdMethods.SYS_CALL(args);};
 	  final Reaction SYS_ANSI_TEST = (args) -> {CmdMethods.SYS_ANSI_TEST(args);};
 	  final Reaction SYS_RUNTIME_ERROR_TEST = (args) -> {CmdMethods.SYS_RUNTIME_ERROR_TEST(args);};
@@ -62,29 +64,32 @@ public class CommandManager {
 	  final Reaction CM_BAN = (args) -> {CmdMethods.CM_BAN(args);};
 	  final Reaction CM_DISBAN = (args) -> {CmdMethods.CM_DISBAN(args);};
 	  final Reaction CM_INFO = (args) -> {CmdMethods.CM_INFO(args);};
+	  final Reaction MY_NAME_IS = (args) -> {CmdMethods.MY_NAME_IS(args);};
 	  
-	  register("exit #INT",EXIT);
-	  register("sys-exit #INT",SYS_EXIT);
-	  register("sys_call STR #STR",SYS_CALL);
+	  register("exit ?INT",EXIT);
+	  register("sys-exit ?INT",SYS_EXIT);
+	  register("help",HELP);
+	  register("sys-help",SYS_HELP);
+	  register("sys-call STR ?STR",SYS_CALL);
 	  register("sys-ansi-test",SYS_ANSI_TEST);
-	  register("sys-runtime-error-test #STR",SYS_RUNTIME_ERROR_TEST);
-	  register("sys-checked-error-test #STR",SYS_CHECKED_ERROR_TEST);
-	  register("sys-getupdate STR",SYS_UPDATE);
+	  register("sys-runtime-error-test ?STR",SYS_RUNTIME_ERROR_TEST);
+	  register("sys-checked-error-test ?STR",SYS_CHECKED_ERROR_TEST);
+	  register("sys-update STR",SYS_UPDATE);
 	  register("pm-set STR STR",PM_SET);
 	  register("pm-get",PM_GET);
-	  register("pm-store #STR",PM_STORE);
-	  register("pm-load #STR",PM_LOAD);
+	  register("pm-store ?STR",PM_STORE);
+	  register("pm-load ?STR",PM_LOAD);
 	  register("fm-install",FM_INSTALL);
 	  register("fm-installed",FM_INSTALLED);
 	  register("fm-delete-all",FM_DELETE_ALL);
 	  register("gm-start",GM_START);
-	  register("cm-host STR #INT",CM_HOST);
+	  register("cm-host STR INT ?STR",CM_HOST);
 	  register("cm-connect STR",CM_CONNECT);
 	  register("cm-shutdown STR",CM_SHUTDOWN);
 	  register("cm-broadcast STR STR",CM_BROADCAST);
 	  register("cm-ban STR STR",CM_BAN);
 	  register("cm-disban STR STR",CM_DISBAN);
 	  register("cm-info",CM_INFO);
-	  
+	  register("My",MY_NAME_IS);
   }
 }

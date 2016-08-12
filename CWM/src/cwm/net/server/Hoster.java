@@ -84,19 +84,26 @@ public class Hoster {
 		for(Client Client: Clients){
 			try {
 				  if(msg.isEmpty() || msg.contains("[SERVER]")){break;}
+				  if(msg.contains(" ")){
+					  if(msg.split(" ").length==0){
+						  break;
+					  }
+				  }
 				  if(Sender==Client){continue;}
-                  Client.getWriter().printf("[%s] %s\r\n",Sender.getName(),msg);
+				  String ToSend = String.format("[%s] %s\r\n",Sender.getName(),msg);
+                  Client.getWriter().printf(ToSend);
                   Client.getWriter().flush();
 			} catch (Throwable e) {
 				Main.handleError(e,Thread.currentThread(),"ERROR:");
 			}
 		}
 	}
-	
+
 	public void broadcast(String msg){
 		for(Client Client: Clients){
 			try {
-                  Client.getWriter().printf("[SERVER] %s\r\n",msg);
+				  String ToSend = String.format("[SERVER] %s\r\n",msg);
+                  Client.getWriter().printf(ToSend);
                   Client.getWriter().flush();
 			} catch (Throwable e) {
 				Main.handleError(e,Thread.currentThread(),"ERROR:");

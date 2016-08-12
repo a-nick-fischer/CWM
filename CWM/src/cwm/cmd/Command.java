@@ -19,7 +19,7 @@ public class Command {
   }
   
   private boolean isOptional(String args){
-	  return args.charAt(0)=='#'? true : false;
+	  return args.charAt(0)=='?'? true : false;
   }
   
   private String getType(String args){
@@ -48,7 +48,7 @@ public class Command {
 	  for(int i =1;i<Arguments.size();i++){
 		  String Comparer = null;
 		  if(isOptional(Arguments.get(i-1))){
-			  Comparer = Arguments.get(i-1).replace("#","");
+			  Comparer = Arguments.get(i-1).replaceAll("\\?","");
 		  }
 		  else{
 			  Comparer = Arguments.get(i-1);

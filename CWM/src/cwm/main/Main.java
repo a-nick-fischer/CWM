@@ -32,34 +32,30 @@ public class Main {
 		return Version;
 	}
 
-	public static void installAndLoad(){
-		FileManager.init();
-		FileManager.install();
-		PropertyManager.setup(FileManager.getFileByName("Prog.conf"));
-		PropertyManager.load(FileManager.getFileByName("Prog.conf"));
-		if(PropertyManager.getProperty("GUI").equals("true")){GUIManager.start();}
+	public static void install(){
+		
 	}
 	
 	public static void prepare(){
      try{
+ 		FileManager.init();
 		PropertyManager.loadDefaults();
 		CommandManager.registerDefaults();
+		if(FileManager.isInstalled()){
+		 PropertyManager.load(FileManager.getFileByName("Prog.conf"));
+		}
 		ThreadManager.initMainExecutor(
 				Integer.parseInt(PropertyManager.getProperty("MAIN_EXECUTOR_TYPE"))
 		);
-		
 		Thread.setDefaultUncaughtExceptionHandler(
 				new Thread.UncaughtExceptionHandler(){
-
 					@Override
 					public void uncaughtException(Thread t, Throwable e) {
 						handleError(e,t,"CRITICAL ERROR:");
 					}
-			      
-		});
-		if(FileManager.isInstalled()){
-			Main.installAndLoad();
-		}
+				}
+		);
+		if(PropertyManager.getProperty("GUI").equals("true")){GUIManager.start();}
 	 }catch(Throwable e){
 		 handleError(e,Thread.currentThread(),"ERROR:");
 	 }
