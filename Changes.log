@@ -1,7 +1,16 @@
+================== 0.0.3 =====================
+* Fixed issue which caused StackOverflowException in errorhandler
+* Fixed newline issue on some UNIX systems
+* Fixed "fm-install" error on UNIX systems
+* Fixed bug in easteregg
+* Fixed bug in sys-call
+* Chat with more than 3 people!!!
+* Save and load server with cm-save-server <servername> and cm-load-server <servername>
+
 ================== 0.0.2 =====================
-*fixed wrong version number (now its the correct one anyway ;))
-*startup code improvement
-*some little command bugs fixed
+* Fixed wrong version number (now its the correct one anyway ;))
+* Startup code improvement
+* Some little command bugs fixed
 
 ================== 0.0.1 =====================
-*Initial release 
+* Initial release 
