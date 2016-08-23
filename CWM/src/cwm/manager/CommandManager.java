@@ -39,7 +39,6 @@ public class CommandManager {
   }
 
   public static void registerDefaults(){
-	  
 	  final Reaction EXIT = (args) -> {CmdMethods.SYS_EXIT(args);};
 	  final Reaction SYS_EXIT = (args) -> {CmdMethods.SYS_EXIT(args);};
 	  final Reaction HELP = (args) ->{CmdMethods.SYS_HELP(args);};
@@ -64,6 +63,8 @@ public class CommandManager {
 	  final Reaction CM_BAN = (args) -> {CmdMethods.CM_BAN(args);};
 	  final Reaction CM_DISBAN = (args) -> {CmdMethods.CM_DISBAN(args);};
 	  final Reaction CM_INFO = (args) -> {CmdMethods.CM_INFO(args);};
+	  final Reaction CM_SAVE_SERVER = (args) -> {CmdMethods.CM_SAVE_SERVER(args);};
+	  final Reaction CM_LOAD_SERVER = (args) -> {CmdMethods.CM_LOAD_SERVER(args);};
 	  final Reaction MY_NAME_IS = (args) -> {CmdMethods.MY_NAME_IS(args);};
 	  
 	  register("exit ?INT",EXIT);
@@ -90,6 +91,8 @@ public class CommandManager {
 	  register("cm-ban STR STR",CM_BAN);
 	  register("cm-disban STR STR",CM_DISBAN);
 	  register("cm-info",CM_INFO);
+	  register("cm-save-server STR",CM_SAVE_SERVER);
+	  register("cm-load-server STR",CM_LOAD_SERVER);
 	  register("My",MY_NAME_IS);
   }
 }

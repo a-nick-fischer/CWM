@@ -8,11 +8,11 @@ import cwm.main.Main;
 public class FileManager{
 	
 	private static LinkedList<File> Files = new LinkedList<>();
-	private static File PropertyFile=new File("CWMessenger\\Prog.conf");
-	private static File Folder      = new File("CWMessenger");
-	private static File LogFile     = new File("CWMessenger\\Cwm.log");
-	private static File PluginFolder=new File("CWMessenger\\Plugins");
-	private static File ServerFolder=new File("CWMessenger\\Server");
+	private static File PropertyFile = new File("CWMessenger"+File.separator+"Prog.conf");
+	private static File Folder       = new File("CWMessenger");
+	private static File LogFile      = new File("CWMessenger"+File.separator+"Cwm.log");
+	private static File PluginFolder = new File("CWMessenger"+File.separator+"Plugins");
+	private static File ServerFolder = new File("CWMessenger"+File.separator+"Server");
 	
  public static void init(){
 	 Files.add(Folder);
@@ -20,18 +20,17 @@ public class FileManager{
 	 Files.add(LogFile);
 	 Files.add(PropertyFile);
  }
-	
+ 
  public static void install(){
-	    try {
+   try {
 			if(!Folder.exists()){Folder.mkdir();}
 			if(!PluginFolder.exists()){PluginFolder.mkdir();}
 			if(!ServerFolder.exists()){ServerFolder.mkdir();}
 			if(!PropertyFile.exists()){PropertyFile.createNewFile();}
 			if(!LogFile.exists()){LogFile.createNewFile();}
-			
-	    } catch (Throwable e) {
-			Main.handleError(e,Thread.currentThread(),"ERROR:");
-		}
+	 }catch (Throwable e) {
+		  Main.handleError(e,Thread.currentThread(),"ERROR:");
+	 }
  }
  
  public static void deleteAll(){

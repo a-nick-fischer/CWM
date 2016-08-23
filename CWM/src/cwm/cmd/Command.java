@@ -33,31 +33,29 @@ public class Command {
   
   private boolean checkSyntax(List<String> args){
 	  if(args.get(0).equals(Key)==false){return false;}
-	  
 	  int gotSize = args.size();
 	  int minSize = 0;
-	  
 	  for(String Pattern: Arguments){
 		  if(isOptional(Pattern)){
 			  break;
-		  }else{minSize++;}
+		  }else{
+        minSize++;
+      }
 	  }
-	 
 	  if(gotSize<minSize){return false;}
-	  
 	  for(int i =1;i<Arguments.size();i++){
 		  String Comparer = null;
 		  if(isOptional(Arguments.get(i-1))){
 			  Comparer = Arguments.get(i-1).replaceAll("\\?","");
-		  }
-		  else{
+		  }else{
 			  Comparer = Arguments.get(i-1);
 		  }
-
 		  if(getType(args.get(i)).equals(Comparer)==false){
 			  if(isOptional(Arguments.get(i))){
 				  continue;
-			  }else return false;
+			  }else{
+          return false;
+        }
 		  }
 	  }
 	  return true;
@@ -71,11 +69,13 @@ public class Command {
 	  List<String> Arguments = new ArrayList<>(Arrays.asList(args.split(" ")));
 	  if(checkSyntax(Arguments)){
 		  R.react(Arguments);
-	  }else{printSyntax();}
+	  }else{
+      printSyntax();
+    }
   }
 
   private void printSyntax() {
-	IOManager.print(Syntax);
+	  IOManager.print(Syntax);
   }
 
   public static Command create(String args, Reaction r){

@@ -16,7 +16,7 @@ public class Client implements Runnable{
 	private String Name;
 	private Scanner sc;
 	private PrintStream ps;
-	private boolean running=false;
+	private boolean running;
 	
 	public Client(Socket client, int ServerID, String Name) throws IOException{
 		this.setSocket(client);
@@ -26,40 +26,41 @@ public class Client implements Runnable{
 		sc=new Scanner(client.getInputStream());
 	}
 	
-	@Override
+	@Override 
 	public void run() {
 		setRunning(true);
 		try {
 			CommunikationManager.getServerByID(ServerID).broadcast(Name+" joined the room!");
-		} catch (Throwable e) {
+		}catch (Throwable e) {
 			disconnect();
 			Main.handleError(e,Thread.currentThread(),"ERROR:");
 		}
 		while(isRunning()){
-			    try{
-			     if(sc.hasNextLine()){
-			       String line = sc.nextLine();
-			       if(line.equals("/exit")){disconnect();}
-			       if(line.equals("/list")){
-			    	  List<Client> Clients = CommunikationManager.getServerByID(ServerID).getClients();
-			    	  ps.printf("[SERVER] There are %s users on this server\r\n",Clients.size());
-			    	  for(int i=0;i<Clients.size();i++){
-			    		  ps.printf("%s: %s\r\n",i,Clients.get(i).getName());
-			    	  }
-			       }
-			       
-			       else CommunikationManager.getServerByID(ServerID).broadcast(this,line);}
-			    } catch (Throwable e) {
-			    	disconnect();
-					Main.handleError(e,Thread.currentThread(),"ERROR:");
+		  try{
+			  if(sc.hasNextLine()){
+			    String line = sc.nextLine();
+			    if(line.equals("/exit")){disconnect();}
+			    if(line.equals("/list")){
+			      List<Client> Clients = CommunikationManager.getServerByID(ServerID).getClients();
+			    	ps.printf("[SERVER] There are %s users on this server\r\n",Clients.size());
+			    	for(int i=0;i<Clients.size();i++){
+			    		ps.printf("%s: %s\r\n",i,Clients.get(i).getName());
+			    	}
+			    }else{
+						CommunikationManager.getServerByID(ServerID).broadcast(this,line);
+					}
 				}
-	    }
+			}catch (Throwable e) {
+			  disconnect();
+				Main.handleError(e,Thread.currentThread(),"ERROR:");
+			}
+	  }
 	}
 
 	public Socket getSocket() {
 		return client;
 	}
-
+  
 	public void setSocket(Socket client) {
 		this.client = client;
 	}
@@ -89,9 +90,13 @@ public class Client implements Runnable{
 		setRunning(false);
 		CommunikationManager.getServerByID(ServerID).getClients().remove(this);
 		try{
-		 if(sc!=null){sc.close();}
-		 if(ps!=null){ps.close();}
-		 if(client!=null && client.isClosed()==false){client.close();}
+		  if(sc!=null){sc.close();}
+		  if(ps!=null){ps.close();}
+		  if(client!=null){
+			if(client.isClosed()==false){
+				client.close();
+			}
+		  }
 		}catch(Exception e){
 			Main.handleError(e, Thread.currentThread(), "ERROR:");
 		}

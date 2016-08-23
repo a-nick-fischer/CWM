@@ -15,11 +15,9 @@ public class IOManager{
 	private static OutputStream DefOut   = System.out;
 	private static OutputStream DefErr   = System.err;
 	private static InputStream  DefIn    = System.in;
-	
 	private static PrintStream MPrinter  = new PrintStream(DefOut);
 	private static PrintStream MEPrinter = new PrintStream(DefErr);
 	private static Scanner     MScanner  = new Scanner(DefIn);
-	
 	private static PrintStream FileLogger;
 	
 	public static void setOutputStream(OutputStream OS){
@@ -71,52 +69,50 @@ public class IOManager{
 		return str;
 	}
 	
-    public static void print(String str){
-      if(PropertyManager.getProperty("ANSI").equals("false")){
+  public static void print(String str){
+    if(PropertyManager.getProperty("ANSI").equals("false")){
+    	str = filterAnsi(str.replaceAll("\n", System.lineSeparator()));
+    }else{
+      str = str.replaceAll("\n", System.lineSeparator())+Colors.RESET;
+    }
+    MPrinter.print(str);
+    MPrinter.flush();
+    if(str!="\n>"){
     	str = filterAnsi(str);
-      }else{
-    	str = str+Colors.RESET;
-      }
-      
-      MPrinter.print(str);
-      MPrinter.flush();
-    	
-      if(str!="\n>"){
-    	 str = filterAnsi(str);
-         log("SYS/"+Thread.currentThread().getName(),str);
-      }
+      log("SYS/"+Thread.currentThread().getName(),str);
     }
+  }
 
-    public static void errprint(String str){
-    	log("ERRSYS/"+Thread.currentThread().getName(),filterAnsi(str));
-    	
-    	if(PropertyManager.getProperty("ANSI").equals("true")){
-    	str = Colors.RED+str+Colors.RESET;
-    	 System.out.println(1);
-    	}else{
-        str = filterAnsi(str);
+  public static void errprint(String str){
+    str = filterAnsi(str.replaceAll("\n", System.lineSeparator()));
+    log("ERRSYS/"+Thread.currentThread().getName(),str);
+    if(PropertyManager.getProperty("ANSI").equals("true")){
+      str = Colors.RED+str+Colors.RESET;
+    }else{
+      str = filterAnsi(str);
+    }
+    MEPrinter.print(str);
+    MEPrinter.flush();
+  }
+    
+  public static String nextLine(){
+    String str=MScanner.nextLine();
+    log("USER",str);
+    return str;
+  }
+    
+  public static void log(String name,String str){
+    if(PropertyManager.getProperty("LOG").equals("true") && FileManager.isInstalled()){
+    	try {
+    	  String Date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+    	  FileLogger = new PrintStream(new FileOutputStream(FileManager.getFileByName("Cwm.log"),true));
+    	  FileLogger.println("["+Date+"]"+"("+name+") "+str);
+    	}catch (Throwable e){
+    	  IOManager.errprint("\nAn special error occured in file logger!\n"+e+"\n");
+    	  IOManager.errprint("Please message me about this issue, so i can fix it.\n nickkoro02@gmail.com\n\n");
+    	  e.printStackTrace(new PrintStream(IOManager.getErrorStream()));
+    	  Main.run();
     	}
-    	MEPrinter.print(str);
-    	MEPrinter.flush();
     }
-    
-    public static String nextLine(){
-    	String str=MScanner.nextLine();
-    	log("USER",str);
-    	return str;
-    }
-    
-    public static void log(String name,String str){
-    	        if(PropertyManager.getProperty("LOG").equals("true") && FileManager.isInstalled()){
-    	        	try {
-    	        		String Date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-    	    			FileLogger = new PrintStream(new FileOutputStream(FileManager.getFileByName("Cwm.log"),true));
-    	    			FileLogger.println("["+Date+"]"+"("+name+") "+str);
-    	        	} catch (Throwable e) {
-    	        		IOManager.errprint("\nAn special error occured in file logger!\n"+e+"\n");
-    	    		    IOManager.errprint("Please message me about this issue, so i can fix it.\n nickkoro02@gmail.com\n\n");
-    	    		    e.printStackTrace(new PrintStream(IOManager.getErrorStream()));
-    	    		    Main.run();
-    				}
-    }}
- }
+	}
+}
